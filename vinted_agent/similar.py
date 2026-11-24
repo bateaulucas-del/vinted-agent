@@ -43,6 +43,102 @@ TYPES = {
     "tracksuit": "survêtement", "overshirt": "surchemise", "hoody": "sweat à capuche", "capuche": "sweat à capuche",
     "crop": "crop top", "corset": "corset", "jumpsuit": "combinaison", "overall": "salopette",
 }
+# Liste élargie : vêtements, chaussures, accessoires, en français et en anglais, avec les orthographes
+# courantes. Les clés sont sans accents ni tirets (le titre est mis sous cette forme avant la recherche).
+TYPES.update({
+    # expressions de plusieurs mots (cherchées avant les mots seuls)
+    "t shirt": "t-shirt", "tee shirts": "t-shirt", "t shirts": "t-shirt", "coupes vent": "coupe-vent",
+    "k way": "coupe-vent", "rain jacket": "imperméable", "veste de pluie": "imperméable",
+    "sweat a capuche": "sweat à capuche", "sweat capuche": "sweat à capuche", "half zip": "pull demi-zip",
+    "quarter zip": "pull demi-zip", "demi zip": "pull demi-zip", "sous pull": "sous-pull",
+    "tank top": "débardeur", "crop top": "crop top", "over shirt": "surchemise", "sur chemise": "surchemise",
+    "chemise de nuit": "chemise de nuit", "robe de chambre": "robe de chambre", "robe de soiree": "robe de soirée",
+    "doudoune sans manches": "doudoune sans manches", "gilet sans manches": "gilet sans manches",
+    "veste sans manches": "gilet sans manches", "veste en jean": "veste en jean", "denim jacket": "veste en jean",
+    "veste de travail": "veste de travail", "chore jacket": "veste de travail", "down jacket": "doudoune",
+    "puffer jacket": "doudoune", "trench coat": "trench", "duffle coat": "duffle-coat", "pea coat": "caban",
+    "veste matelassee": "veste matelassée", "gilet de costume": "gilet de costume",
+    "jupe culotte": "jupe-culotte", "mini jupe": "mini-jupe", "pantalon de survetement": "pantalon de survêtement",
+    "track pants": "pantalon de survêtement", "short de bain": "short de bain", "swim shorts": "short de bain",
+    "maillot de foot": "maillot de foot", "maillot de football": "maillot de foot", "football shirt": "maillot de foot",
+    "soutien gorge": "soutien-gorge", "nu pieds": "sandales", "flip flops": "tongs", "chelsea boots": "chelsea boots",
+    "ankle boots": "bottines", "mary janes": "babies", "slip on": "baskets slip-on", "running shoes": "chaussures de running",
+    "chaussures de running": "chaussures de running", "chaussures de sport": "baskets", "bottes de pluie": "bottes de pluie",
+    "sac bandouliere": "sac bandoulière", "sac de sport": "sac de sport", "sac de voyage": "sac de voyage",
+    "tote bag": "tote bag", "porte monnaie": "porte-monnaie", "porte cartes": "porte-cartes", "porte carte": "porte-cartes",
+    "porte cles": "porte-clés", "tour de cou": "snood", "bucket hat": "bob", "noeud papillon": "nœud papillon",
+    "lunettes de soleil": "lunettes de soleil", "boucles d'oreilles": "boucles d'oreilles",
+    "boucles d oreilles": "boucles d'oreilles", "boucle d'oreille": "boucles d'oreilles",
+    "combinaison de ski": "combinaison de ski", "pantalon de ski": "pantalon de ski", "veste de ski": "veste de ski",
+    # hauts
+    "chemisier": "chemisier", "tunique": "tunique", "tunic": "tunique", "bustier": "bustier", "caraco": "caraco",
+    "camisole": "caraco", "marcel": "débardeur", "tank": "débardeur", "henley": "t-shirt henley",
+    "longsleeve": "t-shirt manches longues", "tricot": "pull", "knit": "pull", "knitwear": "pull",
+    "crewneck": "sweat", "sweatshirts": "sweat", "hoodies": "sweat à capuche", "bolero": "boléro",
+    "shacket": "surchemise", "bodysuit": "body", "blouses": "blouse", "tshirts": "t-shirt", "tees": "t-shirt",
+    "cardi": "cardigan", "gilets": "gilet", "jersey": "maillot", "maillots": "maillot",
+    # vestes et manteaux
+    "puffer": "doudoune", "pardessus": "manteau", "overcoat": "manteau", "peacoat": "caban", "trenchcoat": "trench",
+    "vareuse": "vareuse", "saharienne": "saharienne", "harrington": "veste harrington", "varsity": "veste teddy",
+    "letterman": "veste teddy", "biker": "perfecto", "aviateur": "blouson aviateur", "shearling": "veste en peau lainée",
+    "vest": "gilet", "waistcoat": "gilet de costume", "raincoat": "imperméable", "cire": "ciré",
+    "hardshell": "veste imperméable", "loden": "manteau loden", "doudounes": "doudoune", "blazers": "blazer",
+    "jackets": "veste", "coats": "manteau", "matelassee": "veste matelassée", "quilted": "veste matelassée",
+    "gabardine": "trench", "smoking": "costume", "tailleur": "tailleur", "suit": "costume",
+    # bas
+    "bermuda": "bermuda", "pantacourt": "pantacourt", "corsaire": "pantacourt", "jegging": "jegging",
+    "flare": "pantalon évasé", "palazzo": "pantalon palazzo", "chinos": "chino", "joggers": "jogging",
+    "sweatpants": "jogging", "joggings": "jogging", "trackpants": "pantalon de survêtement", "shorts": "short",
+    "minijupe": "mini-jupe", "jupon": "jupon", "pants": "pantalon", "slacks": "pantalon", "skort": "jupe-short",
+    "culotte": "culotte", "collant": "collants", "tights": "collants", "leggings": "legging", "pantalons": "pantalon",
+    "combishort": "combishort", "playsuit": "combishort", "romper": "combishort", "barboteuse": "barboteuse",
+    "salopettes": "salopette", "dungarees": "salopette", "baggy": "jean baggy", "cargos": "pantalon cargo",
+    # robes
+    "sundress": "robe", "gown": "robe de soirée", "nuisette": "nuisette", "kaftan": "caftan", "caftan": "caftan",
+    "dresses": "robe", "skirts": "jupe", "robes": "robe",
+    # nuit, bain, lingerie
+    "bra": "soutien-gorge", "string": "string", "boxer": "boxer", "calecon": "caleçon", "slip": "slip",
+    "peignoir": "peignoir", "pyjamas": "pyjama", "swimsuit": "maillot de bain", "trikini": "trikini",
+    "boardshort": "short de bain", "pareo": "paréo", "lingerie": "lingerie", "brassieres": "brassière",
+    # chaussures
+    "tennis": "baskets", "derby": "derbies", "richelieu": "richelieus", "richelieus": "richelieus",
+    "loafers": "mocassins", "loafer": "mocassins", "mocassin": "mocassins", "rangers": "rangers",
+    "santiags": "santiags", "santiag": "santiags", "cuissardes": "cuissardes", "bottillons": "bottines",
+    "bottine": "bottines", "botte": "bottes", "talons": "talons", "heels": "talons", "pumps": "escarpins",
+    "escarpin": "escarpins", "stiletto": "escarpins", "compensees": "compensées", "wedges": "compensées",
+    "sabots": "sabots", "clogs": "sabots", "claquettes": "claquettes", "slides": "claquettes",
+    "sandals": "sandales", "sandale": "sandales", "chaussons": "chaussons", "pantoufles": "chaussons",
+    "slippers": "chaussons", "babies": "babies", "spartiates": "spartiates", "mule": "mules",
+    "shoes": "chaussures", "chaussure": "chaussures", "boot": "boots", "trainer": "baskets",
+    "ballerine": "ballerines", "flats": "ballerines", "espadrille": "espadrilles", "tong": "tongs",
+    "crampons": "chaussures de foot", "cleats": "chaussures de foot", "creepers": "creepers",
+    # sacs et petite maroquinerie
+    "bandouliere": "sac bandoulière", "crossbody": "sac bandoulière", "besace": "besace", "cartable": "cartable",
+    "sacoche": "sacoche", "backpack": "sac à dos", "handbag": "sac à main", "clutch": "pochette",
+    "shopper": "cabas", "valise": "valise", "trousse": "trousse", "wallet": "portefeuille",
+    "cardholder": "porte-cartes", "purse": "sac à main", "bags": "sac", "sacs": "sac", "minaudiere": "pochette",
+    "baguette": "sac baguette", "bowling": "sac bowling", "hobo": "sac hobo", "satchel": "cartable",
+    # accessoires
+    "foulard": "foulard", "scarf": "écharpe", "snood": "snood", "chapeau": "chapeau", "hat": "chapeau",
+    "beanie": "bonnet", "cap": "casquette", "beret": "béret", "bandana": "bandana", "bandeau": "bandeau",
+    "headband": "bandeau", "chouchou": "chouchou", "scrunchie": "chouchou", "barrette": "barrette",
+    "cravate": "cravate", "bretelles": "bretelles", "belt": "ceinture", "gloves": "gants", "gant": "gants",
+    "mitaines": "mitaines", "moufles": "moufles", "sunglasses": "lunettes de soleil", "watch": "montre",
+    "bijou": "bijou", "bijoux": "bijou", "collier": "collier", "necklace": "collier", "bracelet": "bracelet",
+    "bague": "bague", "earrings": "boucles d'oreilles", "pendentif": "pendentif", "broche": "broche",
+    "parapluie": "parapluie", "socks": "chaussettes", "chaussette": "chaussettes", "cagoule": "cagoule",
+    "balaclava": "cagoule", "chapka": "chapka", "fedora": "chapeau", "panama": "chapeau", "visiere": "visière",
+    "casquettes": "casquette", "bonnets": "bonnet", "echarpes": "écharpe", "lunette": "lunettes",
+    # bébé et enfant
+    "grenouillere": "grenouillère", "gigoteuse": "gigoteuse", "bavoir": "bavoir", "ensemble": "ensemble",
+    "layette": "layette", "bloomer": "bloomer",
+})
+# Les titres tirés d'une adresse perdent souvent les petits mots (« pantalon survetement »,
+# « sac dos ») : on ajoute aussi chaque expression sans ces petits mots.
+for _k, _v in list(TYPES.items()):
+    _short = " ".join(w for w in _k.split() if w not in {"de", "a", "d'", "d", "du", "en", "la", "le", "des"})
+    if " " in _short and _short not in TYPES:
+        TYPES[_short] = _v
 COLORS = {
     "noir": "noir", "noire": "noir", "blanc": "blanc", "blanche": "blanc", "ecru": "écru", "beige": "beige",
     "camel": "camel", "marron": "marron", "chocolat": "marron", "brun": "marron", "taupe": "taupe",
@@ -158,12 +254,19 @@ def _close(a: str, b: str) -> bool:
     if abs(len(a) - len(b)) > 1:
         return False
     if len(a) == len(b):
-        return sum(x != y for x, y in zip(a, b)) == 1
+        diff = [i for i, (x, y) in enumerate(zip(a, b)) if x != y]
+        # une lettre changée, ou deux lettres voisines inversées (adidsa → adidas)
+        return len(diff) == 1 or (len(diff) == 2 and diff[1] == diff[0] + 1
+                                  and a[diff[0]] == b[diff[1]] and a[diff[1]] == b[diff[0]])
     if len(a) > len(b):
         a, b = b, a
     return any(b[:i] + b[i + 1:] == a for i in range(len(b)))
 
 
+# Mots courants des annonces qui ressemblent à un mot connu mais ne doivent jamais être « corrigés ».
+KEEP = {"taille", "tailles", "haute", "hautes", "bonne", "bonnes", "saison", "boost", "basse", "large",
+        "longue", "longues", "courte", "courtes", "porte", "portee", "poche", "poches", "neuve", "mixte",
+        "droite", "petite", "grande", "moyenne", "classe", "slime", "court", "toile", "ville", "plage"}
 _VOCAB: Optional[set[str]] = None
 
 
@@ -181,9 +284,9 @@ def fix_word(w: str) -> str:
     """Corrige une faute d'une lettre sur un mot connu (type, couleur, matière, marque).
     Les mots courts (moins de 5 lettres) ne sont pas touchés pour éviter les fausses corrections."""
     vocab = _vocab()
-    if len(w) < 5 or w in vocab or w.rstrip("s") in vocab:
+    if len(w) < 5 or w in vocab or w.rstrip("s") in vocab or w in KEEP:
         return w
-    matches = sorted(v for v in vocab if len(v) >= 4 and _close(w, v))
+    matches = sorted(v for v in vocab if len(v) >= 5 and _close(w, v))
     return matches[0] if len(matches) == 1 else w
 
 

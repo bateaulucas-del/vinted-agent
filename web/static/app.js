@@ -133,14 +133,7 @@ function renderSites(box, sites) {
     row.className = "link site";
     const txt = document.createElement("div");
     const b = document.createElement("strong"); b.textContent = s.site;
-    const c = document.createElement("div");
-    if (s.count === null || s.count === undefined) {
-      c.className = "q"; c.textContent = "Nombre non disponible";
-    } else {
-      c.className = "count";
-      c.textContent = s.count === 0 ? "Aucune annonce" : `${s.count.toLocaleString("fr-FR")} annonce${s.count > 1 ? "s" : ""}`;
-    }
-    txt.append(b, c);
+    txt.append(b);
     const btns = document.createElement("div"); btns.className = "btns";
     btns.append(Object.assign(document.createElement("a"), { href: s.url, target: "_blank", rel: "noopener", className: "main", textContent: "Voir" }));
     row.append(txt, btns);

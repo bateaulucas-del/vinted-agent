@@ -97,7 +97,7 @@ def site_results(query: str, max_price: Optional[float] = None, country: str = "
     """Une ligne par site : nom, lien de recherche, nombre d'annonces (None = non disponible)."""
     rows = [
         {"site": "Vinted", "url": vinted_url(query, max_price, country=country), "count": None},
-        {"site": "eBay", "url": ebay_url(query, max_price, country), "count": ebay_count(query, max_price, country)},
+        {"site": "eBay", "url": ebay_url(query, max_price, country), "count": None},
     ]
     if country == "fr":
         price = f"&price=min-{max_price:g}" if max_price else ""

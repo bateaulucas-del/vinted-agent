@@ -44,6 +44,8 @@ $("form").addEventListener("submit", async (e) => {
     const v = $(k).value.trim();
     if (v) fd.append(k, v);
   }
+  for (const el of document.querySelectorAll("#more input:checked")) fd.append(el.name, el.value);
+  saveChoices();
   const btn = $("go");
   btn.disabled = true;
   btn.innerHTML = '<span class="spin">🔍</span>On cherche…';
@@ -52,6 +54,7 @@ $("form").addEventListener("submit", async (e) => {
     const data = await r.json().catch(() => ({}));
     if (!r.ok) throw new Error(data.detail || "Une erreur est survenue.");
     render(data);
+    addHistory(data);
   } catch (err) {
     showError(err.message);
   } finally {
@@ -95,15 +98,15 @@ function render({ item, links, sites, sites_query, similar }) {
       const q = document.createElement("div"); q.className = "q"; q.textContent = `« ${b.query} »`;
       txt.append(t, q);
       const btns = document.createElement("div"); btns.className = "btns";
-      btns.append(
-        Object.assign(document.createElement("a"), { href: b.vinted_url, target: "_blank", rel: "noopener", className: "main", textContent: "Vinted" }),
-        Object.assign(document.createElement("a"), { href: b.ebay_url, target: "_blank", rel: "noopener", className: "alt", textContent: "eBay" }),
-      );
+      if (b.vinted_url) btns.append(Object.assign(document.createElement("a"), { href: b.vinted_url, target: "_blank", rel: "noopener", className: "main", textContent: "Vinted" }));
+      if (b.ebay_url) btns.append(Object.assign(document.createElement("a"), { href: b.ebay_url, target: "_blank", rel: "noopener", className: "alt", textContent: "eBay" }));
+      if (!btns.children.length) continue;
       row.append(txt, btns);
       bbox.append(row);
     }
   }
 
+  $("links-title").classList.toggle("hidden", !links.length);
   const box = $("links");
   box.replaceChildren();
   for (const l of links) {
@@ -152,3 +155,85 @@ $("share").addEventListener("click", async () => {
   if (navigator.share) { try { await navigator.share(data); } catch {} }
   else { await navigator.clipboard.writeText(location.origin); $("share").textContent = "Lien copié !"; }
 });
+
+
+// ---------- Réglages (gardés sur l'appareil) ----------
+const store = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+};
+const prefs = store.get("prefs", { dark: false, motion: true, remember: true });
+
+function applyPrefs() {
+  document.documentElement.classList.toggle("dark", prefs.dark);
+  document.documentElement.classList.toggle("no-motion", !prefs.motion);
+  $("opt-dark").checked = prefs.dark;
+  $("opt-motion").checked = prefs.motion;
+  $("opt-remember").checked = prefs.remember;
+}
+for (const [id, key] of [["opt-dark", "dark"], ["opt-motion", "motion"], ["opt-remember", "remember"]]) {
+  $(id).addEventListener("change", () => {
+    prefs[key] = $(id).checked;
+    store.set("prefs", prefs);
+    if (key === "remember" && !prefs.remember) localStorage.removeItem("choices");
+    applyPrefs();
+  });
+}
+
+function saveChoices() {
+  if (!prefs.remember) return;
+  const choices = { size: $("size").value, max_price: $("max_price").value, country: $("country").value,
+    more: [...document.querySelectorAll("#more input")].map((el) => [el.name, el.value, el.checked]) };
+  store.set("choices", choices);
+}
+function loadChoices() {
+  const c = prefs.remember && store.get("choices", null);
+  if (!c) return;
+  for (const k of ["size", "max_price", "country"]) if (c[k] != null) $(k).value = c[k];
+  for (const [name, value, checked] of c.more || []) {
+    const el = document.querySelector(`#more input[name="${CSS.escape(name)}"][value="${CSS.escape(value)}"]`);
+    if (el) el.checked = checked;
+  }
+}
+
+function addHistory({ item }) {
+  const title = [item.brand, item.model].filter(Boolean).join(" · ") || item.category || "Article";
+  const entry = { title, url: mode === "url" ? $("url").value.trim() : null, when: Date.now() };
+  const h = store.get("history", []).filter((e) => !(e.url && e.url === entry.url));
+  store.set("history", [entry, ...h].slice(0, 8));
+  renderHistory();
+}
+function renderHistory() {
+  const ul = $("history");
+  ul.replaceChildren();
+  const h = store.get("history", []);
+  if (!h.length) { const li = document.createElement("li"); li.className = "q"; li.textContent = "Aucune recherche pour l'instant."; ul.append(li); }
+  for (const e of h) {
+    const li = document.createElement("li");
+    const b = document.createElement("button"); b.type = "button"; b.className = "hist";
+    const t = document.createElement("span"); t.textContent = e.title;
+    const d = document.createElement("small"); d.textContent = (e.url ? "🔗 " : "📷 ") + new Date(e.when).toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+    b.append(t, d);
+    b.disabled = !e.url;
+    b.addEventListener("click", () => {
+      document.querySelector('.tab[data-mode="url"]').click();
+      $("url").value = e.url;
+      toggleSettings(false);
+      $("form").requestSubmit();
+    });
+    li.append(b); ul.append(li);
+  }
+}
+$("history-clear").addEventListener("click", () => { store.set("history", []); renderHistory(); });
+
+function toggleSettings(open) {
+  $("settings").classList.toggle("hidden", !open);
+  $("gear").setAttribute("aria-expanded", open);
+  if (open) renderHistory();
+}
+$("gear").addEventListener("click", () => toggleSettings($("settings").classList.contains("hidden")));
+$("settings-close").addEventListener("click", () => toggleSettings(false));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleSettings(false); });
+
+applyPrefs();
+loadChoices();

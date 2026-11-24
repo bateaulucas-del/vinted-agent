@@ -30,6 +30,17 @@
   <div class="sticker s3">👜</div>
   <div class="sticker s4">🧢</div>
 </aside>
+<button type="button" id="gear" class="gear" aria-label="Réglages" aria-expanded="false" aria-controls="settings">⚙️</button>
+<div id="settings" class="settings hidden" role="dialog" aria-label="Réglages">
+  <div class="settings-head"><h4>Réglages</h4><button type="button" id="settings-close" class="x" aria-label="Fermer">✕</button></div>
+  <label class="switch"><input type="checkbox" id="opt-dark"><span>Mode sombre</span></label>
+  <label class="switch"><input type="checkbox" id="opt-motion" checked><span>Animations</span></label>
+  <label class="switch"><input type="checkbox" id="opt-remember" checked><span>Retenir ma taille, mon pays et mes filtres</span></label>
+  <h5>Mes dernières recherches</h5>
+  <ul id="history"></ul>
+  <button type="button" id="history-clear" class="ghost small">Effacer l'historique</button>
+  <p class="q">Tout reste sur cet appareil, rien n'est envoyé.</p>
+</div>
 <main>
   <header>
     <div class="logo" aria-hidden="true">🧥</div>
@@ -76,6 +87,48 @@
       </div>
     </div>
 
+    <details class="more" id="more">
+      <summary>Plus d'options</summary>
+      <div class="more-body">
+        <fieldset>
+          <legend>État</legend>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="conditions" value="new_tags"><span>Neuf avec étiquette</span></label>
+            <label class="chip"><input type="checkbox" name="conditions" value="new"><span>Neuf sans étiquette</span></label>
+            <label class="chip"><input type="checkbox" name="conditions" value="very_good"><span>Très bon état</span></label>
+            <label class="chip"><input type="checkbox" name="conditions" value="good"><span>Bon état</span></label>
+            <label class="chip"><input type="checkbox" name="conditions" value="ok"><span>Satisfaisant</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Trier par</legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="sort" value="relevance" checked><span>Pertinence</span></label>
+            <label class="chip"><input type="radio" name="sort" value="price"><span>Moins cher d'abord</span></label>
+            <label class="chip"><input type="radio" name="sort" value="newest"><span>Plus récents</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Pour</legend>
+          <div class="chips">
+            <label class="chip"><input type="radio" name="gender" value="" checked><span>Tout le monde</span></label>
+            <label class="chip"><input type="radio" name="gender" value="women"><span>Femme</span></label>
+            <label class="chip"><input type="radio" name="gender" value="men"><span>Homme</span></label>
+            <label class="chip"><input type="radio" name="gender" value="kids"><span>Enfant</span></label>
+          </div>
+        </fieldset>
+        <fieldset>
+          <legend>Sites</legend>
+          <div class="chips">
+            <label class="chip"><input type="checkbox" name="sites" value="Vinted" checked><span>Vinted</span></label>
+            <label class="chip"><input type="checkbox" name="sites" value="eBay" checked><span>eBay</span></label>
+            <label class="chip"><input type="checkbox" name="sites" value="Leboncoin" checked><span>Leboncoin</span></label>
+            <label class="chip"><input type="checkbox" name="sites" value="Vestiaire Collective" checked><span>Vestiaire Collective</span></label>
+          </div>
+        </fieldset>
+      </div>
+    </details>
+
     <button type="submit" id="go">Chercher</button>
     <p id="error" class="error hidden" role="alert"></p>
   </form>
@@ -97,7 +150,7 @@
       <div id="similar-sites"></div>
       <div id="similar-brands"></div>
     </div>
-    <h3>Affiner sur Vinted</h3>
+    <h3 id="links-title">Affiner sur Vinted</h3>
     <div id="links"></div>
     <button type="button" id="share" class="ghost">Partager ce site</button>
   </section>

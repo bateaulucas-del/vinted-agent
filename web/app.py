@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from vinted_agent.identify import describe_image, item_from_url  # noqa: E402
 from vinted_agent.links import search_links  # noqa: E402
+from vinted_agent.filters import Filters  # noqa: E402
 from vinted_agent.gemini import Busy, QuotaExceeded, describe_image_gemini, gemini_enabled  # noqa: E402
 from vinted_agent.links import search_url  # noqa: E402
 from vinted_agent.similar import similar  # noqa: E402
@@ -84,7 +85,12 @@ async def identify(
     size: Optional[str] = Form(None),
     max_price: Optional[float] = Form(None),
     country: str = Form("fr"),
+    conditions: Optional[list[str]] = Form(None),
+    sort: Optional[str] = Form(None),
+    gender: Optional[str] = Form(None),
+    sites: Optional[list[str]] = Form(None),
 ):
+    f = Filters.parse(conditions, sort, gender, sites)
     _rate_limit(_client_ip(request))
     size = (size or "").strip()[:20] or None
     if max_price is not None and not (0 < max_price < 100_000):
@@ -130,16 +136,26 @@ async def identify(
         item.size = size
     if not item.queries:
         raise HTTPException(422, "Je n'ai pas reconnu l'article. Essaie une photo plus nette.")
+    item.queries = [f.query(q) for q in item.queries]
     sim = similar(item)
+
+    def site_rows(q: str) -> list[dict]:
+        return [dict(r, url=f.url(r["url"])) for r in site_results(q, max_price, country) if r["site"] in f.sites]
+
     if sim:
-        sim["sites"] = await run_in_threadpool(site_results, sim["query"], max_price, country)
+        sim["query"] = f.query(sim["query"])
+        sim["sites"] = site_rows(sim["query"])
         for b in sim["brands"]:
-            b["vinted_url"] = search_url(b["query"], max_price, country=country)
-            b["ebay_url"] = ebay_url(b["query"], max_price, country)
+            b["query"] = f.query(b["query"])
+            b["vinted_url"] = f.url(search_url(b["query"], max_price, country=country)) if "Vinted" in f.sites else None
+            b["ebay_url"] = f.url(ebay_url(b["query"], max_price, country)) if "eBay" in f.sites else None
+    links = search_links(item, size=size, max_price=max_price, country=country) if "Vinted" in f.sites else []
+    for l in links:
+        l["url"], l["newest_url"] = f.url(l["url"]), f.url(l["newest_url"], newest=True)
     return {
         "item": item.model_dump(exclude={"queries"}),
         "similar": sim,
-        "links": search_links(item, size=size, max_price=max_price, country=country),
-        "sites": await run_in_threadpool(site_results, item.queries[0], max_price, country),
+        "links": links,
+        "sites": site_rows(item.queries[0]),
         "sites_query": item.queries[0],
     }

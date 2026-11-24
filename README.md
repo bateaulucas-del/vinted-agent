@@ -112,7 +112,7 @@ si on le rebranche, avec `EBAY_CLIENT_ID` et `EBAY_CLIENT_SECRET`.)
 
 Le site repère dans le titre du produit le type (veste, robe, baskets…), la couleur et la matière,
 puis propose une recherche « toutes marques » (avec les mêmes sites)
-et 3 à 4 marques du même style (liste `BRANDS` dans `vinted_agent/similar.py`, à compléter).
+et jusqu'à 6 marques du même style (environ 235 marques rangées par familles : `GROUPS` dans `vinted_agent/similar.py`, à compléter).
 
 ### Maîtriser le coût
 

@@ -109,16 +109,6 @@ def _meta(soup: BeautifulSoup, prop: str) -> Optional[str]:
     return tag.get("content") if tag else None
 
 
-# Marques reconnues dans l'adresse quand la page elle-même est bloquée
-KNOWN_BRANDS = [
-    "adidas", "nike", "puma", "reebok", "new balance", "asics", "vans", "converse", "levi's", "levis",
-    "zara", "mango", "h&m", "uniqlo", "massimo dutti", "pull&bear", "bershka", "stradivarius", "cos", "arket",
-    "sezane", "sandro", "maje", "ba&sh", "the kooples", "zadig & voltaire", "ralph lauren", "lacoste",
-    "tommy hilfiger", "calvin klein", "carhartt", "the north face", "patagonia", "columbia", "kappa",
-    "fila", "champion", "jordan", "salomon", "timberland", "dr martens", "birkenstock", "veja",
-]
-
-
 def item_from_url_slug(url: str) -> Item:
     """Devine l'article à partir des mots de l'adresse (quand le site bloque la lecture de la page)."""
     path = urlparse(url).path
@@ -133,11 +123,12 @@ def item_from_url_slug(url: str) -> Item:
     text = " ".join(words)
     if len(words) < 2:
         raise ValueError("Ce site bloque la lecture de sa page. Essaie avec une photo de l'article.")
+    from .similar import _plain, describe, known_brands  # import ici pour éviter une boucle d'imports
     host = urlparse(url).hostname or ""
-    brand = next((b for b in KNOWN_BRANDS if re.search(rf"(^| ){re.escape(b)}( |$)", text)), None) \
-        or next((b for b in KNOWN_BRANDS if re.sub(r"[^a-z]", "", b) in host.split(".")), None)
-    item = Item(brand=brand.title() if brand else None, model=" ".join(words).capitalize())
-    from .similar import describe  # import ici pour éviter une boucle d'imports
+    found = next((b for b in known_brands() if re.search(rf"(^| ){re.escape(_plain(b))}( |$)", text)), None) \
+        or next((b for b in known_brands() if re.sub(r"[^a-z]", "", _plain(b)) in host.split(".")), None)
+    brand = _plain(found) if found else None
+    item = Item(brand=found, model=" ".join(words).capitalize())
     d = describe(item)
     queries = [" ".join(words[:8])]
     if brand and brand not in queries[0]:

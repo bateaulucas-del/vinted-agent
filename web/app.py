@@ -13,11 +13,13 @@ from typing import Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
+from fastapi.concurrency import run_in_threadpool
 from fastapi.staticfiles import StaticFiles
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from vinted_agent.identify import describe_image, item_from_url  # noqa: E402
 from vinted_agent.links import search_links  # noqa: E402
+from vinted_agent.sites import ebay_enabled, site_results  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
 MAX_PHOTO_BYTES = 6_000_000
@@ -68,7 +70,7 @@ def index():
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "photos": bool(os.environ.get("ANTHROPIC_API_KEY"))}
+    return {"ok": True, "photos": bool(os.environ.get("ANTHROPIC_API_KEY")), "ebay": ebay_enabled()}
 
 
 @app.post("/api/identify")
@@ -117,4 +119,6 @@ async def identify(
     return {
         "item": item.model_dump(exclude={"queries"}),
         "links": search_links(item, size=size, max_price=max_price, country=country),
+        "sites": await run_in_threadpool(site_results, item.queries[0], max_price, country),
+        "sites_query": item.queries[0],
     }

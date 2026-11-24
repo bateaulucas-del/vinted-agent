@@ -92,6 +92,18 @@ Puis ouvre http://localhost:8000.
 Sur l'offre gratuite, le site s'endort après 15 minutes sans visite : la première visite
 suivante prend environ 30 secondes.
 
+### Nombre d'annonces par site
+
+Après l'identification, le site affiche une ligne par site (Vinted, eBay, Leboncoin en France,
+Vestiaire Collective) avec un bouton vers la recherche.
+
+- **eBay** affiche le nombre d'annonces d'occasion grâce à son API officielle et gratuite
+  (5 000 recherches par jour, résultats gardés 1 h en mémoire). Pour l'activer, crée un compte
+  sur https://developer.ebay.com, puis une clé **Production** et colle `App ID` dans
+  `EBAY_CLIENT_ID` et `Cert ID` dans `EBAY_CLIENT_SECRET` (Render > Environment).
+- **Vinted, Leboncoin, Vestiaire Collective** n'ont pas d'API publique et interdisent la collecte
+  automatisée : le site n'affiche que le lien, sans nombre.
+
 ### Maîtriser le coût
 
 | Variable | Rôle | Par défaut |

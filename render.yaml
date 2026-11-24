@@ -8,6 +8,10 @@ services:
     envVars:
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: EBAY_CLIENT_ID
+        sync: false
+      - key: EBAY_CLIENT_SECRET
+        sync: false
       - key: VINTED_AGENT_MODEL
         value: claude-opus-5-5
       - key: CLAUDE_PER_DAY

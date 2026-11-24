@@ -57,7 +57,7 @@ $("form").addEventListener("submit", async (e) => {
   }
 });
 
-function render({ item, links }) {
+function render({ item, links, sites, sites_query }) {
   const title = [item.brand, item.model].filter(Boolean).join(" · ") || item.category || "Article";
   $("item-title").textContent = title;
   const facts = $("item-facts");
@@ -71,6 +71,28 @@ function render({ item, links }) {
   const img = $("item-img");
   const src = mode === "photo" ? $("preview").src : item.image_url;
   if (src) { img.src = src; img.classList.remove("hidden"); } else img.classList.add("hidden");
+
+  $("sites-query").textContent = `Annonces d'occasion pour « ${sites_query} »`;
+  const sbox = $("sites");
+  sbox.replaceChildren();
+  for (const s of sites || []) {
+    const row = document.createElement("div");
+    row.className = "link site";
+    const txt = document.createElement("div");
+    const b = document.createElement("strong"); b.textContent = s.site;
+    const c = document.createElement("div");
+    if (s.count === null || s.count === undefined) {
+      c.className = "q"; c.textContent = "Nombre non disponible";
+    } else {
+      c.className = "count";
+      c.textContent = s.count === 0 ? "Aucune annonce" : `${s.count.toLocaleString("fr-FR")} annonce${s.count > 1 ? "s" : ""}`;
+    }
+    txt.append(b, c);
+    const btns = document.createElement("div"); btns.className = "btns";
+    btns.append(Object.assign(document.createElement("a"), { href: s.url, target: "_blank", rel: "noopener", className: "main", textContent: "Voir" }));
+    row.append(txt, btns);
+    sbox.append(row);
+  }
 
   const box = $("links");
   box.replaceChildren();

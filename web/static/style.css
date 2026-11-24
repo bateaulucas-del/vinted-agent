@@ -27,7 +27,9 @@ button[type=submit]:disabled { opacity:.6; cursor:wait; }
 .item ul { list-style:none; padding:0; margin:0; color:var(--muted); font-size:.92rem; }
 h3 { font-size:1rem; margin:18px 0 8px; }
 .link { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px; border:1px solid var(--line); border-radius:10px; margin-bottom:8px; }
-.link .q { font-size:.85rem; color:var(--muted); }
+.link .q, p.q { font-size:.85rem; color:var(--muted); }
+.link .count { font-size:.95rem; font-weight:700; color:var(--accent); }
+p.q { margin:-4px 0 8px; }
 .link .btns { display:flex; gap:6px; flex-shrink:0; }
 .link a { text-decoration:none; padding:8px 12px; border-radius:8px; font-weight:600; font-size:.9rem; }
 .link a.main { background:var(--accent); color:#fff; }

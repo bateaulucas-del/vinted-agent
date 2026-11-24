@@ -7,6 +7,7 @@ document.querySelectorAll(".tab").forEach((t) => t.addEventListener("click", () 
     x.classList.toggle("active", x === t);
     x.setAttribute("aria-selected", x === t);
   });
+  document.querySelector(".tabs").classList.toggle("photo", mode === "photo");
   $("pane-url").classList.toggle("hidden", mode !== "url");
   $("pane-photo").classList.toggle("hidden", mode !== "photo");
 }));
@@ -20,8 +21,10 @@ $("photo").addEventListener("change", () => {
 });
 
 function showError(msg) {
-  $("error").textContent = msg;
-  $("error").classList.remove("hidden");
+  const e = $("error");
+  e.textContent = msg;
+  e.classList.add("hidden"); void e.offsetWidth;  // relance l'animation
+  e.classList.remove("hidden");
 }
 
 $("form").addEventListener("submit", async (e) => {
@@ -43,7 +46,7 @@ $("form").addEventListener("submit", async (e) => {
   }
   const btn = $("go");
   btn.disabled = true;
-  btn.textContent = "Analyse en cours…";
+  btn.innerHTML = '<span class="spin">🔍</span>On cherche…';
   try {
     const r = await fetch("/api/identify", { method: "POST", body: fd });
     const data = await r.json().catch(() => ({}));
@@ -122,7 +125,10 @@ function render({ item, links, sites, sites_query, similar }) {
     tip.textContent = `Astuce : sur Vinted, choisis la taille ${item.size} dans le filtre « Taille ».`;
     box.append(tip);
   }
-  $("result").classList.remove("hidden");
+  document.querySelectorAll("#result .link").forEach((el, i) => el.style.setProperty("--i", i));
+  const res = $("result");
+  res.classList.remove("hidden", "reveal"); void res.offsetWidth;
+  res.classList.add("reveal");
   $("result").scrollIntoView({ behavior: "smooth", block: "start" });
 }
 

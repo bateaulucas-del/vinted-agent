@@ -88,7 +88,7 @@ GROUPS = {
     "enfant": ["Petit Bateau", "Jacadi", "Cyrillus", "Okaïdi", "Tape à l'œil", "Du Pareil au Même", "Vertbaudet",
                "Catimini", "Zara Kids", "H&M Kids", "Bonpoint", "Kiabi"],
 }
-ALIASES = {"levis": "levi's", "hm": "h&m", "h et m": "h&m", "zv": "zadig & voltaire", "tnf": "the north face",
+ALIASES = {"levis": "levi's", "hm": "h&m", "h et m": "h&m", "zv": "zadig & voltaire", "tnf": "the north face", "north face": "the north face",
            "dr martens": "dr. martens", "docs": "dr. martens", "ralph": "ralph lauren", "ysl": "saint laurent",
            "lv": "louis vuitton", "stussy": "stüssy", "arcteryx": "arc'teryx", "other stories": "& other stories",
            "sezane": "sézane", "apc": "a.p.c.", "cp": "cp company", "tommy": "tommy hilfiger"}

@@ -112,8 +112,10 @@ def _meta(soup: BeautifulSoup, prop: str) -> Optional[str]:
 def item_from_url_slug(url: str) -> Item:
     """Devine l'article à partir des mots de l'adresse (quand le site bloque la lecture de la page)."""
     path = urlparse(url).path
-    words = []
+    words, raw = [], []
     for part in re.split(r"[/\-_.+]+", path.lower()):
+        if part and not (re.search(r"\d", part) and not re.fullmatch(r"\d{1,2}", part)):
+            raw.append(part)
         if not part or part in ("p", "fr", "en", "produit", "product", "products", "html", "htm", "www", "a", "de",
                                 "du", "la", "le", "les", "en", "et", "pour", "avec", "the", "and", "with"):
             continue
@@ -125,14 +127,17 @@ def item_from_url_slug(url: str) -> Item:
         raise ValueError("Ce site bloque la lecture de sa page. Essaie avec une photo de l'article.")
     from .similar import _plain, describe, known_brands  # import ici pour éviter une boucle d'imports
     host = urlparse(url).hostname or ""
-    found = next((b for b in known_brands() if re.search(rf"(^| ){re.escape(_plain(b))}( |$)", text)), None) \
+    raw_text = " ".join(raw)
+    found = next((b for b in known_brands() if re.search(rf"(^| ){re.escape(_plain(b))}( |$)", raw_text)), None) \
         or next((b for b in known_brands() if re.sub(r"[^a-z]", "", _plain(b)) in host.split(".")), None)
     brand = _plain(found) if found else None
     item = Item(brand=found, model=" ".join(words).capitalize())
     d = describe(item)
-    queries = [" ".join(words[:8])]
-    if brand and brand not in queries[0]:
-        queries[0] = f"{brand} {queries[0]}"
+    if brand:
+        rest = [w for w in words if w not in brand.split()]
+        queries = [" ".join([brand] + rest[:7])]
+    else:
+        queries = [" ".join(words[:8])]
     short = " ".join(x for x in (brand, d["type"], d["color"]) if x)
     if d["type"] and short != queries[0]:
         queries.append(short)

@@ -16,17 +16,19 @@ import requests
 from .identify import PROMPT
 from .models import Item
 
-GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-lite-latest")
+# Essayés dans l'ordre : Google renomme souvent ses modèles, on passe au suivant si l'un n'existe plus.
+MODELS = [m for m in [os.environ.get("GEMINI_MODEL")] if m] + [
+    "gemini-flash-lite-latest", "gemini-flash-latest", "gemini-2.5-flash-lite", "gemini-2.5-flash"]
 URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 
 SCHEMA = {
     "type": "OBJECT",
     "properties": {
-        "brand": {"type": "STRING", "nullable": True},
-        "model": {"type": "STRING", "nullable": True},
-        "category": {"type": "STRING", "nullable": True},
-        "color": {"type": "STRING", "nullable": True},
-        "size": {"type": "STRING", "nullable": True},
+        "brand": {"type": "STRING"},
+        "model": {"type": "STRING"},
+        "category": {"type": "STRING"},
+        "color": {"type": "STRING"},
+        "size": {"type": "STRING"},
         "queries": {"type": "ARRAY", "items": {"type": "STRING"}},
     },
     "required": ["queries"],
@@ -50,11 +52,19 @@ def describe_image_gemini(image_bytes: bytes, media_type: str = "image/jpeg") ->
         "generationConfig": {"responseMimeType": "application/json", "responseSchema": SCHEMA,
                              "temperature": 0.2},
     }
-    r = requests.post(URL.format(model=GEMINI_MODEL), json=body, timeout=40,
-                      headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]})
-    if r.status_code == 429:
-        raise QuotaExceeded("Quota Gemini du jour épuisé.")
-    r.raise_for_status()
+    r = None
+    for model in MODELS:
+        r = requests.post(URL.format(model=model), json=body, timeout=40,
+                          headers={"x-goog-api-key": os.environ["GEMINI_API_KEY"]})
+        if r.status_code == 429:
+            raise QuotaExceeded("Quota Gemini du jour épuisé.")
+        if r.status_code == 200:
+            break
+        print(f"Gemini {model} : erreur {r.status_code} {r.text[:300]}", flush=True)
+        if r.status_code not in (400, 404):
+            break
+    if r is None or r.status_code != 200:
+        raise RuntimeError("Gemini indisponible.")
     try:
         text = r.json()["candidates"][0]["content"]["parts"][0]["text"]
         data = json.loads(text)

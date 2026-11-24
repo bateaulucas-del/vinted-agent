@@ -119,7 +119,8 @@ async def identify(
         raise
     except ValueError as e:
         raise HTTPException(400, str(e))
-    except Exception:
+    except Exception as e:
+        print(f"Erreur d'analyse : {type(e).__name__}: {e}", flush=True)
         raise HTTPException(502, "Impossible d'analyser cet article. Essaie un autre lien ou une autre photo.")
 
     if size:

@@ -22,7 +22,7 @@ from vinted_agent.links import search_links  # noqa: E402
 from vinted_agent.filters import Filters  # noqa: E402
 from vinted_agent.gemini import Busy, QuotaExceeded, describe_image_gemini, gemini_enabled  # noqa: E402
 from vinted_agent.links import search_url  # noqa: E402
-from vinted_agent.similar import similar  # noqa: E402
+from vinted_agent.similar import broaden, similar  # noqa: E402
 from vinted_agent.sites import ebay_enabled, ebay_url, site_results  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
@@ -136,6 +136,7 @@ async def identify(
         item.size = size
     if not item.queries:
         raise HTTPException(422, "Je n'ai pas reconnu l'article. Essaie une photo plus nette.")
+    broaden(item)
     item.queries = [f.query(q) for q in item.queries]
     sim = similar(item)
 

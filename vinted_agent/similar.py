@@ -25,6 +25,23 @@ TYPES = {
     "casquette": "casquette", "jacket": "veste", "coat": "manteau", "dress": "robe", "skirt": "jupe",
     "jeans": "jean", "trousers": "pantalon", "shirt": "chemise", "jumper": "pull", "sweater": "pull",
     "trainers": "baskets", "bag": "sac",
+    # expressions de plusieurs mots (cherchées en premier)
+    "coupe vent": "coupe-vent", "sac a dos": "sac à dos", "sac a main": "sac à main", "col roule": "pull col roulé",
+    "veste de costume": "blazer", "maillot de bain": "maillot de bain", "tee shirt": "t-shirt",
+    "sweat shirt": "sweat", "pull over": "pull", "bob": "bob",
+    # autres types
+    "windbreaker": "coupe-vent", "anorak": "anorak", "kway": "coupe-vent", "softshell": "veste softshell",
+    "polaire": "polaire", "fleece": "polaire", "teddy": "veste teddy", "bomber": "bomber", "perfecto": "perfecto",
+    "caban": "caban", "duffle": "duffle-coat", "imperméable": "imperméable", "impermeable": "imperméable",
+    "sweatshirt": "sweat", "pullover": "pull", "salopette": "salopette", "kimono": "kimono", "poncho": "poncho",
+    "cape": "cape", "body": "body", "brassiere": "brassière", "maillot": "maillot", "bikini": "bikini",
+    "pyjama": "pyjama", "chaussettes": "chaussettes", "mules": "mules", "derbies": "derbies", "tongs": "tongs",
+    "espadrilles": "espadrilles", "ballerines": "ballerines", "sneaker": "baskets", "runners": "baskets",
+    "chaussures": "chaussures", "gants": "gants", "lunettes": "lunettes", "montre": "montre",
+    "portefeuille": "portefeuille", "cabas": "cabas", "tote": "tote bag", "banane": "sac banane",
+    "chino": "chino", "cargo": "pantalon cargo", "jogger": "jogging", "survetement": "survêtement",
+    "tracksuit": "survêtement", "overshirt": "surchemise", "hoody": "sweat à capuche", "capuche": "sweat à capuche",
+    "crop": "crop top", "corset": "corset", "jumpsuit": "combinaison", "overall": "salopette",
 }
 COLORS = {
     "noir": "noir", "noire": "noir", "blanc": "blanc", "blanche": "blanc", "ecru": "écru", "beige": "beige",
@@ -173,8 +190,9 @@ def fix_word(w: str) -> str:
 def describe(item: Item) -> dict:
     """Type, couleur et matière repérés dans le titre et les champs connus."""
     text = " ".join(x for x in (item.category, item.model, item.color) if x)
-    words = [fix_word(w) for w in re.findall(r"[a-z&'-]+", _plain(text))]
-    kind = _find(words, TYPES)
+    words = [fix_word(w) for w in re.findall(r"[a-z&']+", _plain(text).replace("-", " "))]
+    joined = f" {' '.join(words)} "
+    kind = next((TYPES[k] for k in TYPES if " " in k and f" {k} " in joined), None) or _find(words, TYPES)
     color = _find(words, COLORS)
     material = _find([w for w in words if w != kind], MATERIALS)
     return {"type": kind, "color": color, "material": material}
@@ -183,19 +201,47 @@ def describe(item: Item) -> dict:
 BRANDS = _build_brands()
 
 
-def similar(item: Item) -> Optional[dict]:
-    """Recherche « toutes marques » et marques proches, ou None si le type n'est pas reconnu."""
+STOP = {"a", "de", "du", "des", "la", "le", "les", "en", "et", "pour", "avec", "the", "and", "with", "homme",
+        "femme", "unisexe", "men", "women", "kids", "enfant", "taille", "size", "new", "neuf", "collection"}
+
+
+def core_words(item: Item, brand: str = "") -> list[str]:
+    """Mots utiles du titre, sans la marque, les petits mots ni les références."""
+    words = [fix_word(w) for w in re.findall(r"[a-z&']+", _plain(item.model or "").replace("-", " "))]
+    brand_words = set(brand.split()) | set(_key(item.brand or "").split())
+    return list(dict.fromkeys(w for w in words if w not in STOP and w not in brand_words and len(w) > 1))
+
+
+def broaden(item: Item) -> None:
+    """Ajoute une recherche plus large (marque + type + couleur) s'il n'y en a qu'une."""
+    if len(item.queries) >= 2:
+        return
     d = describe(item)
-    if not d["type"]:
-        return None
-    query = " ".join(x for x in (d["type"], d["color"], d["material"]) if x)
+    brand = _plain(item.brand or "")
+    core = [x for x in (d["type"], d["color"]) if x] or core_words(item, brand)[:2]
+    broad = " ".join([brand] + core if brand else core).strip()
+    if broad and broad not in item.queries:
+        item.queries.append(broad)
+
+
+def similar(item: Item) -> Optional[dict]:
+    """Recherche « toutes marques » et marques proches, ou None si rien d'utile dans le titre."""
+    d = describe(item)
     brand = _key(item.brand or "")
-    brand = ALIASES.get(brand, brand)
+    brand = _key(ALIASES.get(brand, brand))
     if brand not in BRANDS:  # marque absente de la fiche : on la cherche dans le titre
         title = f" {_plain(item.model or '')} "
         brand = next((_key(b) for b in known_brands() if f" {_key(b)} " in title), brand)
     brands = [b for b in BRANDS.get(brand, []) if _key(b) != brand][:MAX_BRANDS]
-    short = " ".join(x for x in (d["type"], d["color"]) if x)
+    if d["type"]:
+        query = " ".join(x for x in (d["type"], d["color"], d["material"]) if x)
+        short = " ".join(x for x in (d["type"], d["color"]) if x)
+    else:  # type inconnu : on garde les mots du titre sans la marque (ex. « capuche noir »)
+        core = core_words(item, brand)
+        if not core:
+            return None
+        query = " ".join(core[:4])
+        short = " ".join(core[:3])
     return {
         "query": query,
         "brands": [{"brand": b, "query": f"{b} {short}".lower()} for b in brands],

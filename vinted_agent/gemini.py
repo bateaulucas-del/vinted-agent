@@ -39,6 +39,10 @@ class QuotaExceeded(RuntimeError):
     pass
 
 
+class Busy(RuntimeError):
+    """Gemini surchargé (erreur 503 côté Google), à réessayer un peu plus tard."""
+
+
 def gemini_enabled() -> bool:
     return bool(os.environ.get("GEMINI_API_KEY"))
 
@@ -61,9 +65,11 @@ def describe_image_gemini(image_bytes: bytes, media_type: str = "image/jpeg") ->
         if r.status_code == 200:
             break
         print(f"Gemini {model} : erreur {r.status_code} {r.text[:300]}", flush=True)
-        if r.status_code not in (400, 404):
+        if r.status_code not in (400, 404, 500, 503):
             break
     if r is None or r.status_code != 200:
+        if r is not None and r.status_code in (500, 503):
+            raise Busy("Gemini est surchargé.")
         raise RuntimeError("Gemini indisponible.")
     try:
         text = r.json()["candidates"][0]["content"]["parts"][0]["text"]

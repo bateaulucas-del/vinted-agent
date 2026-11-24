@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from vinted_agent.identify import describe_image, item_from_url  # noqa: E402
 from vinted_agent.links import search_links  # noqa: E402
-from vinted_agent.gemini import QuotaExceeded, describe_image_gemini, gemini_enabled  # noqa: E402
+from vinted_agent.gemini import Busy, QuotaExceeded, describe_image_gemini, gemini_enabled  # noqa: E402
 from vinted_agent.links import search_url  # noqa: E402
 from vinted_agent.similar import similar  # noqa: E402
 from vinted_agent.sites import ebay_enabled, ebay_url, site_results  # noqa: E402
@@ -106,6 +106,9 @@ async def identify(
                 except QuotaExceeded:
                     raise HTTPException(503, "La reconnaissance de photos a atteint sa limite gratuite du jour. "
                                              "Réessaie demain, ou colle un lien.")
+                except Busy:
+                    raise HTTPException(503, "Le service de reconnaissance de photos est surchargé en ce moment. "
+                                             "Réessaie dans une minute.")
             else:
                 raise HTTPException(503, "L'analyse de photos est indisponible pour le moment. Essaie avec un lien.")
         elif url:

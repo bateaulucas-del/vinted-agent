@@ -104,6 +104,12 @@ Vestiaire Collective) avec un bouton vers la recherche.
 - **Vinted, Leboncoin, Vestiaire Collective** n'ont pas d'API publique et interdisent la collecte
   automatisée : le site n'affiche que le lien, sans nombre.
 
+### Ça ressemble, d'autres marques
+
+Le site repère dans le titre du produit le type (veste, robe, baskets…), la couleur et la matière,
+puis propose une recherche « toutes marques » (avec les mêmes sites et le nombre d'annonces eBay)
+et 3 à 4 marques du même style (liste `BRANDS` dans `vinted_agent/similar.py`, à compléter).
+
 ### Maîtriser le coût
 
 | Variable | Rôle | Par défaut |

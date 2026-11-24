@@ -57,7 +57,7 @@ $("form").addEventListener("submit", async (e) => {
   }
 });
 
-function render({ item, links, sites, sites_query }) {
+function render({ item, links, sites, sites_query, similar }) {
   const title = [item.brand, item.model].filter(Boolean).join(" · ") || item.category || "Article";
   $("item-title").textContent = title;
   const facts = $("item-facts");
@@ -73,25 +73,32 @@ function render({ item, links, sites, sites_query }) {
   if (src) { img.src = src; img.classList.remove("hidden"); } else img.classList.add("hidden");
 
   $("sites-query").textContent = `Annonces d'occasion pour « ${sites_query} »`;
-  const sbox = $("sites");
-  sbox.replaceChildren();
-  for (const s of sites || []) {
-    const row = document.createElement("div");
-    row.className = "link site";
-    const txt = document.createElement("div");
-    const b = document.createElement("strong"); b.textContent = s.site;
-    const c = document.createElement("div");
-    if (s.count === null || s.count === undefined) {
-      c.className = "q"; c.textContent = "Nombre non disponible";
-    } else {
-      c.className = "count";
-      c.textContent = s.count === 0 ? "Aucune annonce" : `${s.count.toLocaleString("fr-FR")} annonce${s.count > 1 ? "s" : ""}`;
+  renderSites($("sites"), sites);
+
+  $("similar").classList.toggle("hidden", !similar);
+  if (similar) {
+    $("similar-query").textContent = `Toutes marques : « ${similar.query} »`;
+    renderSites($("similar-sites"), similar.sites);
+    const bbox = $("similar-brands");
+    bbox.replaceChildren();
+    if (similar.brands.length) {
+      const p = document.createElement("p"); p.className = "q"; p.textContent = "Marques du même style :";
+      bbox.append(p);
     }
-    txt.append(b, c);
-    const btns = document.createElement("div"); btns.className = "btns";
-    btns.append(Object.assign(document.createElement("a"), { href: s.url, target: "_blank", rel: "noopener", className: "main", textContent: "Voir" }));
-    row.append(txt, btns);
-    sbox.append(row);
+    for (const b of similar.brands) {
+      const row = document.createElement("div"); row.className = "link";
+      const txt = document.createElement("div");
+      const t = document.createElement("strong"); t.textContent = b.brand;
+      const q = document.createElement("div"); q.className = "q"; q.textContent = `« ${b.query} »`;
+      txt.append(t, q);
+      const btns = document.createElement("div"); btns.className = "btns";
+      btns.append(
+        Object.assign(document.createElement("a"), { href: b.vinted_url, target: "_blank", rel: "noopener", className: "main", textContent: "Vinted" }),
+        Object.assign(document.createElement("a"), { href: b.ebay_url, target: "_blank", rel: "noopener", className: "alt", textContent: "eBay" }),
+      );
+      row.append(txt, btns);
+      bbox.append(row);
+    }
   }
 
   const box = $("links");
@@ -117,6 +124,28 @@ function render({ item, links, sites, sites_query }) {
   }
   $("result").classList.remove("hidden");
   $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderSites(box, sites) {
+  box.replaceChildren();
+  for (const s of sites || []) {
+    const row = document.createElement("div");
+    row.className = "link site";
+    const txt = document.createElement("div");
+    const b = document.createElement("strong"); b.textContent = s.site;
+    const c = document.createElement("div");
+    if (s.count === null || s.count === undefined) {
+      c.className = "q"; c.textContent = "Nombre non disponible";
+    } else {
+      c.className = "count";
+      c.textContent = s.count === 0 ? "Aucune annonce" : `${s.count.toLocaleString("fr-FR")} annonce${s.count > 1 ? "s" : ""}`;
+    }
+    txt.append(b, c);
+    const btns = document.createElement("div"); btns.className = "btns";
+    btns.append(Object.assign(document.createElement("a"), { href: s.url, target: "_blank", rel: "noopener", className: "main", textContent: "Voir" }));
+    row.append(txt, btns);
+    box.append(row);
+  }
 }
 
 $("share").addEventListener("click", async () => {

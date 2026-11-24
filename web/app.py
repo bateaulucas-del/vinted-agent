@@ -19,7 +19,9 @@ from fastapi.staticfiles import StaticFiles
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from vinted_agent.identify import describe_image, item_from_url  # noqa: E402
 from vinted_agent.links import search_links  # noqa: E402
-from vinted_agent.sites import ebay_enabled, site_results  # noqa: E402
+from vinted_agent.links import search_url  # noqa: E402
+from vinted_agent.similar import similar  # noqa: E402
+from vinted_agent.sites import ebay_enabled, ebay_url, site_results  # noqa: E402
 
 STATIC = Path(__file__).parent / "static"
 MAX_PHOTO_BYTES = 6_000_000
@@ -116,8 +118,15 @@ async def identify(
         item.size = size
     if not item.queries:
         raise HTTPException(422, "Je n'ai pas reconnu l'article. Essaie une photo plus nette.")
+    sim = similar(item)
+    if sim:
+        sim["sites"] = await run_in_threadpool(site_results, sim["query"], max_price, country)
+        for b in sim["brands"]:
+            b["vinted_url"] = search_url(b["query"], max_price, country=country)
+            b["ebay_url"] = ebay_url(b["query"], max_price, country)
     return {
         "item": item.model_dump(exclude={"queries"}),
+        "similar": sim,
         "links": search_links(item, size=size, max_price=max_price, country=country),
         "sites": await run_in_threadpool(site_results, item.queries[0], max_price, country),
         "sites_query": item.queries[0],

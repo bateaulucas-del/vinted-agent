@@ -109,8 +109,55 @@ def _meta(soup: BeautifulSoup, prop: str) -> Optional[str]:
     return tag.get("content") if tag else None
 
 
+# Marques reconnues dans l'adresse quand la page elle-même est bloquée
+KNOWN_BRANDS = [
+    "adidas", "nike", "puma", "reebok", "new balance", "asics", "vans", "converse", "levi's", "levis",
+    "zara", "mango", "h&m", "uniqlo", "massimo dutti", "pull&bear", "bershka", "stradivarius", "cos", "arket",
+    "sezane", "sandro", "maje", "ba&sh", "the kooples", "zadig & voltaire", "ralph lauren", "lacoste",
+    "tommy hilfiger", "calvin klein", "carhartt", "the north face", "patagonia", "columbia", "kappa",
+    "fila", "champion", "jordan", "salomon", "timberland", "dr martens", "birkenstock", "veja",
+]
+
+
+def item_from_url_slug(url: str) -> Item:
+    """Devine l'article à partir des mots de l'adresse (quand le site bloque la lecture de la page)."""
+    path = urlparse(url).path
+    words = []
+    for part in re.split(r"[/\-_.+]+", path.lower()):
+        if not part or part in ("p", "fr", "en", "produit", "product", "products", "html", "htm", "www", "a", "de",
+                                "du", "la", "le", "les", "en", "et", "pour", "avec", "the", "and", "with"):
+            continue
+        if re.search(r"\d", part) and not re.fullmatch(r"\d{1,2}", part):
+            continue  # références et identifiants (lz5579, 518585…)
+        words.append(part)
+    text = " ".join(words)
+    if len(words) < 2:
+        raise ValueError("Ce site bloque la lecture de sa page. Essaie avec une photo de l'article.")
+    host = urlparse(url).hostname or ""
+    brand = next((b for b in KNOWN_BRANDS if re.search(rf"(^| ){re.escape(b)}( |$)", text)), None) \
+        or next((b for b in KNOWN_BRANDS if re.sub(r"[^a-z]", "", b) in host.split(".")), None)
+    item = Item(brand=brand.title() if brand else None, model=" ".join(words).capitalize())
+    from .similar import describe  # import ici pour éviter une boucle d'imports
+    d = describe(item)
+    queries = [" ".join(words[:8])]
+    if brand and brand not in queries[0]:
+        queries[0] = f"{brand} {queries[0]}"
+    short = " ".join(x for x in (brand, d["type"], d["color"]) if x)
+    if d["type"] and short != queries[0]:
+        queries.append(short)
+    item.queries = list(dict.fromkeys(queries))
+    return item
+
+
 def item_from_url(url: str, use_claude: bool = True) -> Item:
-    soup = BeautifulSoup(safe_get(url), "html.parser")
+    try:
+        html = safe_get(url)
+    except ValueError:
+        raise
+    except Exception as e:  # site qui bloque les serveurs (403), page absente, délai dépassé…
+        print(f"Page illisible ({e}), repli sur l'adresse.", flush=True)
+        return item_from_url_slug(url)
+    soup = BeautifulSoup(html, "html.parser")
     product = _jsonld_product(soup) or {}
 
     brand = product.get("brand")

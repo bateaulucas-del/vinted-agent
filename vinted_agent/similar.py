@@ -15,7 +15,7 @@ from .models import Item
 TYPES = {
     "veste": "veste", "blouson": "blouson", "manteau": "manteau", "doudoune": "doudoune", "parka": "parka",
     "trench": "trench", "blazer": "blazer", "gilet": "gilet", "cardigan": "cardigan", "pull": "pull",
-    "sweat": "sweat", "hoodie": "sweat à capuche", "t-shirt": "t-shirt", "tee-shirt": "t-shirt", "tshirt": "t-shirt",
+    "sweat": "sweat", "tee": "t-shirt", "hoodie": "sweat à capuche", "t-shirt": "t-shirt", "tee-shirt": "t-shirt", "tshirt": "t-shirt",
     "debardeur": "débardeur", "top": "top", "chemise": "chemise", "surchemise": "surchemise", "blouse": "blouse",
     "polo": "polo", "robe": "robe", "jupe": "jupe", "jean": "jean", "pantalon": "pantalon", "short": "short",
     "legging": "legging", "jogging": "jogging", "combinaison": "combinaison", "costume": "costume",

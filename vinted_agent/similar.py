@@ -136,10 +136,44 @@ def known_brands() -> list[str]:
     return sorted({b for members in GROUPS.values() for b in members}, key=len, reverse=True)
 
 
+def _close(a: str, b: str) -> bool:
+    """Vrai si a et b ne diffèrent que d'une lettre (changée, en trop ou en moins)."""
+    if abs(len(a) - len(b)) > 1:
+        return False
+    if len(a) == len(b):
+        return sum(x != y for x, y in zip(a, b)) == 1
+    if len(a) > len(b):
+        a, b = b, a
+    return any(b[:i] + b[i + 1:] == a for i in range(len(b)))
+
+
+_VOCAB: Optional[set[str]] = None
+
+
+def _vocab() -> set[str]:
+    global _VOCAB
+    if _VOCAB is None:
+        words = set(TYPES) | set(COLORS) | {k for k, v in MATERIALS.items() if v}
+        for b in known_brands():
+            words |= {w for w in re.findall(r"[a-z&'.-]+", _plain(b)) if len(w) >= 4}
+        _VOCAB = words
+    return _VOCAB
+
+
+def fix_word(w: str) -> str:
+    """Corrige une faute d'une lettre sur un mot connu (type, couleur, matière, marque).
+    Les mots courts (moins de 5 lettres) ne sont pas touchés pour éviter les fausses corrections."""
+    vocab = _vocab()
+    if len(w) < 5 or w in vocab or w.rstrip("s") in vocab:
+        return w
+    matches = sorted(v for v in vocab if len(v) >= 4 and _close(w, v))
+    return matches[0] if len(matches) == 1 else w
+
+
 def describe(item: Item) -> dict:
     """Type, couleur et matière repérés dans le titre et les champs connus."""
     text = " ".join(x for x in (item.category, item.model, item.color) if x)
-    words = re.findall(r"[a-z&'-]+", _plain(text))
+    words = [fix_word(w) for w in re.findall(r"[a-z&'-]+", _plain(text))]
     kind = _find(words, TYPES)
     color = _find(words, COLORS)
     material = _find([w for w in words if w != kind], MATERIALS)

@@ -112,8 +112,10 @@ def _meta(soup: BeautifulSoup, prop: str) -> Optional[str]:
 def item_from_url_slug(url: str) -> Item:
     """Devine l'article à partir des mots de l'adresse (quand le site bloque la lecture de la page)."""
     path = urlparse(url).path
+    from .similar import fix_word
     words, raw = [], []
     for part in re.split(r"[/\-_.+]+", path.lower()):
+        part = fix_word(part)
         if part and not (re.search(r"\d", part) and not re.fullmatch(r"\d{1,2}", part)):
             raw.append(part)
         if not part or part in ("p", "fr", "en", "produit", "product", "products", "html", "htm", "www", "a", "de",

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trouve-le sur Vinted</title>
+<meta name="description" content="Colle un lien ou envoie une photo d'un vêtement : on le retrouve d'occasion sur Vinted.">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Trouve-le sur Vinted</h1>
+    <p class="sub">Colle le lien d'un vêtement vu en boutique, ou prends-le en photo. On l'identifie et on te montre où le trouver d'occasion.</p>
+  </header>
+
+  <form id="form">
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" data-mode="url" role="tab" aria-selected="true">Lien</button>
+      <button type="button" class="tab" data-mode="photo" role="tab" aria-selected="false">Photo</button>
+    </div>
+
+    <div class="pane" id="pane-url">
+      <label for="url">Lien de la page produit</label>
+      <input id="url" name="url" type="url" inputmode="url" placeholder="https://www.boutique.com/produit…">
+    </div>
+
+    <div class="pane hidden" id="pane-photo">
+      <label for="photo" class="drop" id="drop">
+        <img id="preview" alt="" class="hidden">
+        <span id="drop-text">Choisir ou prendre une photo</span>
+        <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" capture="environment">
+      </label>
+    </div>
+
+    <div class="row">
+      <div>
+        <label for="size">Taille <span class="opt">(facultatif)</span></label>
+        <input id="size" name="size" placeholder="M, 42…" maxlength="20">
+      </div>
+      <div>
+        <label for="max_price">Prix max <span class="opt">(€)</span></label>
+        <input id="max_price" name="max_price" type="number" min="1" step="1" placeholder="50">
+      </div>
+      <div>
+        <label for="country">Pays</label>
+        <select id="country" name="country">
+          <option value="fr">France</option><option value="be">Belgique</option>
+          <option value="es">Espagne</option><option value="it">Italie</option>
+          <option value="de">Allemagne</option><option value="uk">Royaume-Uni</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" id="go">Chercher</button>
+    <p id="error" class="error hidden" role="alert"></p>
+  </form>
+
+  <section id="result" class="hidden" aria-live="polite">
+    <div class="item">
+      <img id="item-img" alt="" class="hidden">
+      <div>
+        <h2 id="item-title"></h2>
+        <ul id="item-facts"></ul>
+      </div>
+    </div>
+    <h3>Voir sur Vinted</h3>
+    <div id="links"></div>
+    <button type="button" id="share" class="ghost">Partager ce site</button>
+  </section>
+
+  <footer>Site indépendant, non affilié à Vinted. Les annonces s'ouvrent directement sur Vinted.</footer>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

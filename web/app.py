@@ -19,6 +19,7 @@ from fastapi.staticfiles import StaticFiles
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from vinted_agent.identify import describe_image, item_from_url  # noqa: E402
 from vinted_agent.links import search_links  # noqa: E402
+from vinted_agent.gemini import QuotaExceeded, describe_image_gemini, gemini_enabled  # noqa: E402
 from vinted_agent.links import search_url  # noqa: E402
 from vinted_agent.similar import similar  # noqa: E402
 from vinted_agent.sites import ebay_enabled, ebay_url, site_results  # noqa: E402
@@ -72,7 +73,7 @@ def index():
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "photos": bool(os.environ.get("ANTHROPIC_API_KEY")), "ebay": ebay_enabled()}
+    return {"ok": True, "photos": bool(os.environ.get("ANTHROPIC_API_KEY")) or gemini_enabled(), "ebay": ebay_enabled()}
 
 
 @app.post("/api/identify")
@@ -96,10 +97,17 @@ async def identify(
             data = await photo.read(MAX_PHOTO_BYTES + 1)
             if len(data) > MAX_PHOTO_BYTES:
                 raise HTTPException(400, "Photo trop lourde (6 Mo maximum).")
-            if not _claude_available():
+            if _claude_available():
+                _claude_calls.append(time.time())
+                item = describe_image(image_bytes=data, media_type=photo.content_type)
+            elif gemini_enabled():
+                try:
+                    item = await run_in_threadpool(describe_image_gemini, data, photo.content_type)
+                except QuotaExceeded:
+                    raise HTTPException(503, "La reconnaissance de photos a atteint sa limite gratuite du jour. "
+                                             "Réessaie demain, ou colle un lien.")
+            else:
                 raise HTTPException(503, "L'analyse de photos est indisponible pour le moment. Essaie avec un lien.")
-            _claude_calls.append(time.time())
-            item = describe_image(image_bytes=data, media_type=photo.content_type)
         elif url:
             use_claude = _claude_available()
             if use_claude:

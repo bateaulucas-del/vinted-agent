@@ -92,6 +92,15 @@ Puis ouvre http://localhost:8000.
 Sur l'offre gratuite, le site s'endort après 15 minutes sans visite : la première visite
 suivante prend environ 30 secondes.
 
+### Photos gratuites avec Gemini
+
+Sans clé Claude, l'onglet Photo peut utiliser Gemini, l'IA de Google, sur son offre gratuite.
+Crée une clé sur https://aistudio.google.com/apikey (gratuit, sans carte) et colle-la dans
+`GEMINI_API_KEY` (Render > Environment). Le quota gratuit est limité à un certain nombre de photos
+par jour, fixé et modifié par Google ; une fois épuisé, le site invite à réessayer le lendemain.
+Sur l'offre gratuite, Google peut utiliser les images envoyées pour améliorer ses produits.
+Le modèle se change avec `GEMINI_MODEL` (par défaut `gemini-flash-lite-latest`).
+
 ### Nombre d'annonces par site
 
 Après l'identification, le site affiche une ligne par site (Vinted, eBay, Leboncoin en France,

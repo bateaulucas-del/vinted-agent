@@ -200,13 +200,17 @@ function addHistory({ item }) {
   const title = [item.brand, item.model].filter(Boolean).join(" · ") || item.category || "Article";
   const entry = { title, url: mode === "url" ? $("url").value.trim() : null, when: Date.now() };
   const h = store.get("history", []).filter((e) => !(e.url && e.url === entry.url));
-  store.set("history", [entry, ...h].slice(0, 8));
+  store.set("history", [entry, ...h].slice(0, 100));
   renderHistory();
 }
+let historyShown = 5;
 function renderHistory() {
   const ul = $("history");
   ul.replaceChildren();
-  const h = store.get("history", []);
+  const all = store.get("history", []);
+  const h = all.slice(0, historyShown);
+  $("history-more").classList.toggle("hidden", all.length <= historyShown);
+  $("history-more").textContent = `Voir plus (${all.length - historyShown} de plus)`;
   if (!h.length) { const li = document.createElement("li"); li.className = "q"; li.textContent = "Aucune recherche pour l'instant."; ul.append(li); }
   for (const e of h) {
     const li = document.createElement("li");
@@ -224,16 +228,45 @@ function renderHistory() {
     li.append(b); ul.append(li);
   }
 }
+$("history-more").addEventListener("click", () => { historyShown += 10; renderHistory(); });
 $("history-clear").addEventListener("click", () => { store.set("history", []); renderHistory(); });
 
 function toggleSettings(open) {
   $("settings").classList.toggle("hidden", !open);
   $("gear").setAttribute("aria-expanded", open);
-  if (open) renderHistory();
+  if (open) { historyShown = 5; renderHistory(); }
 }
 $("gear").addEventListener("click", () => toggleSettings($("settings").classList.contains("hidden")));
 $("settings-close").addEventListener("click", () => toggleSettings(false));
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") toggleSettings(false); });
 
+// ---------- Filtres : compteur et remise à zéro ----------
+const DEFAULTS = { sort: "relevance", gender: "", sites: true, conditions: false };
+function isDefault(el) {
+  if (el.name === "sites") return el.checked;
+  if (el.type === "radio") return el.checked === (el.value === DEFAULTS[el.name]);
+  return !el.checked;
+}
+function updateCount() {
+  let n = [...document.querySelectorAll("#more input")].filter((el) => el.checked && !isDefault(el) || el.name === "sites" && !el.checked).length;
+  if ($("size").value.trim()) n++;
+  if ($("max_price").value.trim()) n++;
+  $("more-count").textContent = n;
+  $("more-count").classList.toggle("hidden", !n);
+  $("reset").disabled = !n;
+}
+$("reset").addEventListener("click", () => {
+  for (const el of document.querySelectorAll("#more input")) {
+    el.checked = el.name === "sites" ? true : el.type === "radio" ? el.value === DEFAULTS[el.name] : false;
+  }
+  $("size").value = ""; $("max_price").value = "";
+  saveChoices(); updateCount();
+  $("reset").textContent = "Filtres enlevés ✓";
+  setTimeout(() => { $("reset").textContent = "Enlever tous les filtres"; }, 1500);
+});
+document.querySelectorAll("#more input, #size, #max_price").forEach((el) => el.addEventListener("input", updateCount));
+document.querySelectorAll("#more input").forEach((el) => el.addEventListener("change", updateCount));
+
 applyPrefs();
 loadChoices();
+updateCount();

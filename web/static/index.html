@@ -38,6 +38,7 @@
   <label class="switch"><input type="checkbox" id="opt-remember" checked><span>Retenir ma taille, mon pays et mes filtres</span></label>
   <h5>Mes dernières recherches</h5>
   <ul id="history"></ul>
+  <button type="button" id="history-more" class="ghost small hidden">Voir plus</button>
   <button type="button" id="history-clear" class="ghost small">Effacer l'historique</button>
   <p class="q">Tout reste sur cet appareil, rien n'est envoyé.</p>
 </div>
@@ -88,7 +89,7 @@
     </div>
 
     <details class="more" id="more">
-      <summary>Plus d'options</summary>
+      <summary>Plus d'options <em id="more-count" class="badge hidden"></em></summary>
       <div class="more-body">
         <fieldset>
           <legend>État</legend>
@@ -126,6 +127,7 @@
             <label class="chip"><input type="checkbox" name="sites" value="Vestiaire Collective" checked><span>Vestiaire Collective</span></label>
           </div>
         </fieldset>
+        <button type="button" id="reset" class="ghost small reset">Enlever tous les filtres</button>
       </div>
     </details>
 

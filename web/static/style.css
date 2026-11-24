@@ -273,3 +273,12 @@ html.dark .tabs { background:#1c1a17; }
 
 /* Animations coupées */
 html.no-motion *, html.no-motion *::before, html.no-motion *::after { animation:none !important; transition:none !important; }
+
+/* Compteur de filtres + remise à zéro */
+.badge {
+  font-style:normal; display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 6px;
+  border-radius:99px; background:var(--terra); color:#fff; font-size:.75rem; font-weight:700; animation:pop .3s var(--ease);
+}
+.reset { margin-top:14px; }
+.reset:disabled { opacity:.5; cursor:default; }
+#history-more { margin-top:8px; }
